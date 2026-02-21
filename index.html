@@ -1,73 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Passport Photo Maker PRO</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      margin-top: 50px;
-      background: #f5f5f5;
-    }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 400px;
-      margin: auto;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    button {
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Passport Photo Maker PRO</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #0f172a, #020617 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* ===== MAIN CARD ===== */
+.card {
+  width: 460px;
+  padding: 36px;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  text-align: center;
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== TITLE ===== */
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 28px;
+}
+
+/* ===== UPLOAD BOX ===== */
+.upload {
+  border: 2px dashed rgba(148,163,184,0.4);
+  border-radius: 16px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all .25s ease;
+  background: rgba(255,255,255,0.02);
+}
+
+.upload:hover {
+  border-color: #38bdf8;
+  background: rgba(56,189,248,0.08);
+  transform: translateY(-2px);
+}
+
+.upload.dragover {
+  border-color: #38bdf8;
+  background: rgba(56,189,248,0.15);
+  transform: scale(1.02);
+}
+
+.upload-text {
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+/* ===== BUTTON ===== */
+button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  transition: all .25s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(99,102,241,0.35);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* ===== STATUS ===== */
+#status {
+  margin-top: 18px;
+  font-size: 14px;
+  min-height: 22px;
+  color: #cbd5e1;
+}
+
+/* ===== LOADER ===== */
+.loader {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top: 2px solid #38bdf8;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  margin-top: 26px;
+  font-size: 12px;
+  color: #64748b;
+  letter-spacing: .3px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="box">
-  <h2>📸 Passport Photo Maker PRO</h2>
+<div class="card">
+  <div class="title">Passport Photo Maker</div>
+  <div class="subtitle">AI Powered • Instant • Professional</div>
 
-  <input type="file" id="fileInput">
-  <br><br>
+  <div class="upload" id="uploadBox">
+    <input type="file" id="fileInput" hidden>
+    <div class="upload-text">Click or Drag & Drop your photo</div>
+  </div>
+
   <button onclick="upload()">Generate Passport Photo</button>
 
-  <p id="status"></p>
+  <div id="status"></div>
+
+  <div class="footer">Made by <b>CREST</b> ⚡</div>
 </div>
 
 <script>
+const fileInput = document.getElementById("fileInput");
+const uploadBox = document.getElementById("uploadBox");
+const statusText = document.getElementById("status");
+
+uploadBox.onclick = () => fileInput.click();
+
+uploadBox.addEventListener("dragover", e => {
+  e.preventDefault();
+  uploadBox.classList.add("dragover");
+});
+
+uploadBox.addEventListener("dragleave", () => {
+  uploadBox.classList.remove("dragover");
+});
+
+uploadBox.addEventListener("drop", e => {
+  e.preventDefault();
+  uploadBox.classList.remove("dragover");
+  fileInput.files = e.dataTransfer.files;
+});
+
 async function upload() {
-  const file = document.getElementById("fileInput").files[0];
+  const file = fileInput.files[0];
   if (!file) return alert("Photo select karo");
 
-  document.getElementById("status").innerText = "Processing...";
+  statusText.innerHTML = '<span class="loader"></span> Processing...';
 
   const formData = new FormData();
   formData.append("image", file);
 
-  const res = await fetch("https://passport-photo-pro-production.up.railway.app/upload", {
-    method: "POST",
-    body: formData
-  });
+  try {
+    const res = await fetch(
+      "https://passport-photo-pro-production.up.railway.app/upload",
+      { method: "POST", body: formData }
+    );
 
-  if (!res.ok) {
-    document.getElementById("status").innerText = "Error processing image";
-    return;
+    if (!res.ok) throw new Error();
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "passport_photo.jpg";
+    a.click();
+
+    statusText.innerHTML = "✅ Download started";
+  } catch (err) {
+    statusText.innerHTML = "❌ Processing failed";
   }
-
-  const blob = await res.blob();
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "passport_photo.jpg";
-  a.click();
-
-  document.getElementById("status").innerText = "✅ Done!";
 }
 </script>
 
